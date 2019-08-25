@@ -1,0 +1,37 @@
+{
+  "name": "jsplumbchart",
+  "version": "1.0.0",
+  "description": "jsplumbchart",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsplumbchart/jsplumbchart.git"
+  },
+  "keywords": [
+    "vue",
+    "jsplumb"
+  ],
+  "author": "ylb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsplumbchart/jsplumbchart/issues"
+  },
+  "homepage": "https://github.com/jsplumbchart/jsplumbchart#readme",
+  "dependencies": {
+    "jsplumb": "^2.11.2",
+    "lodash": "^4.17.15",
+    "panzoom": "^8.1.2",
+    "vuex": "^3.1.1"
+  },
+  "devDependencies": {
+    "bili": "^4.8.1",
+    "node-sass": "^4.12.0",
+    "rollup-plugin-vue": "^5.0.1",
+    "sass-loader": "^7.3.1",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.39.2"
+  }
+}
