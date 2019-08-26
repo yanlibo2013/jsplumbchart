@@ -29,7 +29,7 @@
 <script>
 /* eslint-disable */
 import { mapGetters, mapActions, mapState } from "vuex";
-import getInstance from "../utils/getInstance";
+import getInstance from "@/components/utils/getInstance";
 import _ from "lodash";
 import {
   message,
@@ -43,7 +43,7 @@ import {
   getNodeType,
   setClass,
   connect
-} from "..//utils/flowchart";
+} from "@/components/utils/flowchart";
 import panzoom from "panzoom";
 export default {
   watch: {
@@ -76,7 +76,8 @@ export default {
       links: [],
       nodeClass: nodeClass,
       nodeIcon: nodeIcon,
-      setClass: setClass
+      setClass: setClass,
+      instanceZoom: ""
     };
   },
   computed: {
@@ -110,6 +111,10 @@ export default {
   destroyed: function() {},
   methods: {
     //...mapActions([""]),
+    resetJsplumbChart() {
+      // document.getElementById("cavans").style = "matrix(1, 0, 0, 1, 0, 0)";
+      // this.setZoomJsplumbChart();
+    },
     setZoomJsplumbChart() {
       // 假设矩阵是：matrix(a,b,c,d,e,f);
       // 如果只是平移translate，只关注最后两个数值就好：
@@ -123,60 +128,101 @@ export default {
       // matrix(1,tan(θy),tan(θx),1,0,0)
 
       // and forward it it to panzoom.
-      var instance = panzoom(document.getElementById("cavans"), {
-        zoomDoubleClickSpeed: 1
+      // var instance = panzoom(document.getElementById("cavans"), {
+      //   zoomDoubleClickSpeed: 1,
+      //   smoothScroll: false
+      // }).zoomAbs(
+      //   300, // initial x position
+      //   500, // initial y position
+      //   0.1 // initial zoom
+      // );
+      //instance.style = "transform-origin: 500px 500px 0px";
+
+      let canvas = document.getElementById("cavans");
+
+      this.instanceZoom = panzoom(canvas, {
+        zoomDoubleClickSpeed: 1,
+        smoothScroll: false
       });
 
-      let style = window.getComputedStyle(document.getElementById("cavans"));
+      let style = window.getComputedStyle(canvas);
 
       var values = [];
 
-      instance.on("panend", (e, dx, dy, dz) => {
-        console.log("Fired when pan ended", e, dx, dy, dz);
-
+      this.instanceZoom.on("pan", function(e, dx, dy, dz) {
+        console.log("Fired when the `element` is being panned", e);
         values = style.transform
           .split("(")[1]
           .split(")")[0]
           .split(",");
-
         console.log(values);
-
         console.log("x", parseFloat(values[4]));
         console.log("y", parseFloat(values[5]));
-
         console.log("坐标", {
           x: parseFloat(values[4]) * parseFloat(values[0]),
           y: parseFloat(values[5]) * parseFloat(values[3])
         });
-
-        // this.modifyElementPosition({
-        //   x: parseFloat(values[4]) * parseFloat(values[0]),
-        //   y: parseFloat(values[5]) * parseFloat(values[3])
-        // });
       });
 
-      instance.on("zoom", (e, dx, dy, dz) => {
-        console.log("Fired when `element` is zoomed", e, dx, dy, dz);
+      this.instanceZoom.on("zoom", function(e, dx, dy, dz) {
+        console.log("Fired when `element` is zoomed", e);
         values = style.transform
           .split("(")[1]
           .split(")")[0]
           .split(",");
-
         console.log(values);
-
         console.log("水平缩放", parseFloat(values[0]));
         console.log("垂直缩放", parseFloat(values[3]));
-
         console.log("坐标", {
           x: parseFloat(values[4]) * parseFloat(values[0]),
           y: parseFloat(values[5]) * parseFloat(values[3])
         });
+      });
 
+      this.instanceZoom.on("panend", (e, dx, dy, dz) => {
+        console.log("Fired when pan ended", e, dx, dy, dz);
+        // values = style.transform
+        //   .split("(")[1]
+        //   .split(")")[0]
+        //   .split(",");
+        // console.log(values);
+        // console.log("x", parseFloat(values[4]));
+        // console.log("y", parseFloat(values[5]));
+        // console.log("坐标", {
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
         // this.modifyElementPosition({
         //   x: parseFloat(values[4]) * parseFloat(values[0]),
         //   y: parseFloat(values[5]) * parseFloat(values[3])
         // });
       });
+
+      this.instanceZoom.on("zoom", (e, dx, dy, dz) => {
+        console.log("Fired when `element` is zoomed", e, dx, dy, dz);
+        // values = style.transform
+        //   .split("(")[1]
+        //   .split(")")[0]
+        //   .split(",");
+        // console.log(values);
+        // console.log("水平缩放", parseFloat(values[0]));
+        // console.log("垂直缩放", parseFloat(values[3]));
+        // console.log("坐标", {
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+        // this.modifyElementPosition({
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+      });
+
+      this.instanceZoom.on("transform", function(e) {
+        // This event will be called along with events above.
+        console.log("Fired when any transformation has happened", e);
+      });
+
+      // canvas.style = "transform-origin: 500px 500px 0px";
     },
 
     drawJsplumbChart(data, connectCallback) {
@@ -210,7 +256,6 @@ export default {
       this.getLinksData();
     },
     handleDrop(data, event) {
-      console.log("dropAction(data, event) {");
       this.$emit("handleDrop", { data: data, event: event });
     },
     delConnections(val, fn) {
@@ -256,6 +301,12 @@ export default {
       this.stepData = [];
       this.links = [];
       this.jsplumbInstance.deleteEveryEndpoint("workplace");
+    },
+    mousewheelCavans(event) {
+      console.log("mousewheelCavans", event);
+    },
+    tab(event) {
+      console.log("tab", event);
     }
   }
 };
@@ -265,13 +316,16 @@ export default {
 .jsplumb-chart {
   width: 100%;
   height: 100%;
+  position: absolute;
 
   .cavans {
-    width: 100%;
     height: 100%;
     position: relative;
-    top: 0;
-    left: 0;
+    cursor: -webkit-grab;
+    // top: 0;
+    // left: 0;
+    // top: 500px;
+    // left: 500px;
     //   background-image: url("../assets/img/designBg.png");
 
     // ////////////////////////node style begin///////////////////
