@@ -1,19 +1,31 @@
 <template>
-  <jsplumbchart
-    :data="{stepData:flowData,links:this.links}"
-    @modifyChart="modifyChart"
-    @nodedblClick="nodedblClick"
-    @handleDrop="handleDrop"
-    ref="jsplumbchart"
-  ></jsplumbchart>
+  <div class="chart">
+    <jsplumbchart
+      :data="{
+              stepData: this.steps,
+              links: this.links,
+              jsPlumb: this.jsPlumb
+            }"
+      @handleDrop="handleDrop"
+      @modifyChart="modifyChart"
+      @nodedblClick="nodedblClick"
+      ref="jsplumbchart"
+    ></jsplumbchart>
+  </div>
 </template>
 
 
 <script>
+/* eslint-disable */
+import plumbGather from "jsplumb";
 import jsplumbchart from "../jsplumbchart/index";
 import { mapGetters, mapActions, mapState } from "vuex";
 
 import { flowData } from "../../mock/data/flowData.js";
+
+import Vue from "vue";
+import VueDragDrop from "vue-drag-drop"; //https://github.com/cameronhimself/vue-drag-drop
+Vue.use(VueDragDrop);
 export default {
   watch: {
     // flowData(val) {
@@ -30,20 +42,22 @@ export default {
   },
   data: function() {
     return {
-      stepData: [],
+      steps: [],
       links: [],
-      flowData: []
+      flowData: [],
+      jsPlumb: plumbGather.jsPlumb
     };
   },
   computed: {
     //...mapState([""])
   },
   mounted() {
-    let res = flowData;
+    // let res = flowData;
 
-    this.flowData = res.steps;
-    this.flowType = res.flowType;
-    this.links = res.links;
+    console.log("flowData", flowData);
+
+    this.steps = flowData.steps;
+    this.links = flowData.links;
   },
   beforeCreate() {},
   created() {},
@@ -55,12 +69,12 @@ export default {
   methods: {
     //...mapActions([""]),
     modifyChart(val) {
-      this.flowData = val.stepData;
+      this.steps = val.steps;
       this.links = val.links;
     },
     nodedblClick(val) {},
     handleDrop(val) {
-      this.flowData.push(this.getCurrentNode(val.data));
+      this.steps.push(val.drawIcon ? this.getCurrentNode(val) : val);
     },
     getCurrentNode(data) {
       return {
@@ -77,4 +91,8 @@ export default {
 </script>
 
 <style lang="scss">
+.chart {
+  width: 100vw;
+  height: 100vw;
+}
 </style>

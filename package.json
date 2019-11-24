@@ -1,6 +1,6 @@
 {
   "name": "jsplumbchart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "jsplumbchart",
   "main": "./dist/index.js",
   "scripts": {
@@ -21,9 +21,11 @@
   },
   "homepage": "https://github.com/jsplumbchart/jsplumbchart#readme",
   "dependencies": {
-    "jsplumb": "^2.11.2",
+    "jsplumb": "^2.2.3",
     "lodash": "^4.17.15",
-    "panzoom": "^8.1.2",
+    "panzoom": "^8.7.0",
+    "vue": "^2.6.10",
+    "vue-drag-drop": "^1.1.4",
     "vuex": "^3.1.1"
   },
   "devDependencies": {
