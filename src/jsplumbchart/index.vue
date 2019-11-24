@@ -180,10 +180,10 @@ export default {
         },
         () => {
           this.getLinksData();
-          // if (this.isPanZoomInit) {
-          //   panzoom.init(this.jsplumbInstance);
-          //   this.isPanZoomInit = false;
-          // }
+          if (this.isPanZoomInit) {
+            panzoom.init(this.jsplumbInstance);
+            this.isPanZoomInit = false;
+          }
           //
         }
       );
