@@ -1,5 +1,5 @@
 /*!
- * jsplumbchart v1.0.2
+ * jsplumbchart v1.0.3
  * (c) ylb
  * Released under the ISC License.
  */
@@ -17207,11 +17207,12 @@ var script = {
         flowData: _this2.stepData,
         links: _this2.links
       }, function () {
-        _this2.getLinksData(); // if (this.isPanZoomInit) {
-        //   panzoom.init(this.jsplumbInstance);
-        //   this.isPanZoomInit = false;
-        // }
-        //
+        _this2.getLinksData();
+
+        if (_this2.isPanZoomInit) {
+          panzoom.init(_this2.jsplumbInstance);
+          _this2.isPanZoomInit = false;
+        } //
 
       });
     });
@@ -17597,7 +17598,7 @@ var __vue_staticRenderFns__ = [];
 
 var __vue_inject_styles__ = function __vue_inject_styles__(inject) {
   if (!inject) return;
-  inject("data-v-ab4a71da_0", {
+  inject("data-v-01f16cc3_0", {
     source: "@charset \"UTF-8\";.jsplumb-chart{width:100%;height:100%;position:relative;overflow:hidden;outline:0!important}.jsplumb-chart #jsplumb-chart{outline:0!important;height:100%;width:100%;position:relative}.jsplumb-chart .jtk-surface .designIconBig{height:70px;width:150px;margin:0 auto;box-shadow:0 10px 18px -9px rgba(0,0,0,.5);background:#fff;text-align:center;position:absolute;margin-right:15px;margin-bottom:20px;float:left}.jsplumb-chart .jtk-surface .designIconBig i,.jsplumb-chart .jtk-surface .trapezoid i{float:none!important;position:absolute;left:5px;top:8px;width:30px!important;height:30px!important;line-height:30px!important;font-size:30px!important}.jsplumb-chart .jtk-surface .designIconBig h4,.jsplumb-chart .jtk-surface .trapezoid h4{position:absolute;top:5px;left:38px;margin:0;padding:0;width:110px;text-align:left;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jsplumb-chart .jtk-surface .designIconBig h5,.jsplumb-chart .jtk-surface .trapezoid h5{position:absolute;top:25px;left:38px;margin:0;padding:0;width:110px;text-align:left;font-size:12px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.jsplumb-chart .jtk-surface .designIconBig #removeDes{position:absolute;top:46px;right:15px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .designIconBig #copeDes{position:absolute;top:45px;right:35px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .trapezoid #removeDes{position:absolute;top:46px;right:-138px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .trapezoid #copeDes{position:absolute;top:45px;right:-118px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .designIconBig #pitchOnDes,.jsplumb-chart .jtk-surface .trapezoid #pitchOnDes{position:absolute;top:47px;right:60px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .desingIconBig #markDes,.jsplumb-chart .jtk-surface .trapezoid #markDes{position:absolute;top:45px;right:20px;font-size:14px;color:#b9c0d8;margin:0;padding:0}.jsplumb-chart .jtk-surface .t1Style{border:2px solid #48c038;color:#48c038;border-radius:2px}.jsplumb-chart .jtk-surface .t2Style{border:2px solid #4586f3;color:#4586f3;border-radius:2px}.jsplumb-chart .jtk-surface .t3Style{border:2px solid #8367df;color:#8367df;border-radius:2px}.jsplumb-chart .jtk-surface .redStyle{border:2px solid red}.jsplumb-chart .jtk-surface .designIconBg{position:absolute;color:#fff!important}.jsplumb-chart .jtk-surface .designIconBig #removeDes:hover,.jsplumb-chart .jtk-surface .trapezoid #removeDes:hover{color:#ff4e4e}.jsplumb-chart .jtk-surface .designIconBig #copeDes:hover,.jsplumb-chart .jtk-surface .trapezoid #copeDes:hover{color:#ff4e4e}.jsplumb-chart .jtk-surface .designIconBig #pitchOnDes:hover{color:#ff4e4e}.jsplumb-chart .jtk-surface .bigrounded{border-radius:0 2rem 2rem 0;width:175px}.jsplumb-chart .jtk-surface .trapezoid{color:#4586f3;border-right:150px solid #fff;border-top:50px solid transparent;border-bottom:50px solid transparent;height:70px;width:0}.jsplumb-chart .jtk-surface .resize{width:8px;height:8px;background-color:#ddd;border:1px solid #000;position:absolute}.jsplumb-chart .jtk-surface .resize.left{top:50%;left:-4px;cursor:ew-resize}.jsplumb-chart .jtk-surface .resize.right{top:50%;right:-4px;cursor:ew-resize}.jsplumb-chart .jtk-surface .resize.top{top:-4px;left:50%;margin-left:-4px;cursor:ns-resize}.jsplumb-chart .jtk-surface .resize.bottom{bottom:-4px;left:50%;margin-left:-4px;cursor:ns-resize}.jsplumb-chart .jtk-surface .circle-right{width:100px;height:0;border:0 solid transparent;border-bottom:100px solid #669;border-top:100px solid #669;-moz-border-radius:0 100px 100px 0;-webkit-border-radius:0 100px 100px 0;border-radius:0 100px 100px 0}.jsplumb-chart .line-split{position:absolute;width:2px;background:#4586f3;right:-2px}",
     map: undefined,
     media: undefined

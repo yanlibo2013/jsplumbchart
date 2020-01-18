@@ -77,9 +77,14 @@
 
 <script>
 /* eslint-disable */
+<<<<<<< HEAD
 // import { mapGetters, mapActions, mapState } from "vuex";
 import getInstance from "@/utils/getInstance";
 import panzoom from "@/utils/panZoom/moveAndZoom";
+=======
+import { mapGetters, mapActions, mapState } from "vuex";
+import getInstance from "@/components/utils/getInstance";
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
 import _ from "lodash";
 import {
   message,
@@ -92,11 +97,17 @@ import {
   addEndpointToNode,
   getNodeType,
   setClass,
+<<<<<<< HEAD
   connect,
   getOutputConfigurations
 } from "@/utils/flowchart";
 // import panzoom from "panzoom";
 // import "@svgdotjs/svg.panzoom.js";
+=======
+  connect
+} from "@/components/utils/flowchart";
+import panzoom from "panzoom";
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
 export default {
   watch: {
     data(val) {
@@ -134,6 +145,7 @@ export default {
       nodeClass: nodeClass,
       nodeIcon: nodeIcon,
       setClass: setClass,
+<<<<<<< HEAD
       instanceZoom: "",
       dragging: false,
       //鼠标按下时的鼠标所在的X，Y坐标
@@ -149,6 +161,9 @@ export default {
       isDeleCopyStep: false,
       mouserOverConnect: false,
       isPanZoomInit: true
+=======
+      instanceZoom: ""
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
     };
   },
   computed: {
@@ -180,10 +195,10 @@ export default {
         },
         () => {
           this.getLinksData();
-          // if (this.isPanZoomInit) {
-          //   panzoom.init(this.jsplumbInstance);
-          //   this.isPanZoomInit = false;
-          // }
+          if (this.isPanZoomInit) {
+            panzoom.init(this.jsplumbInstance);
+            this.isPanZoomInit = false;
+          }
           //
         }
       );
@@ -193,6 +208,7 @@ export default {
   destroyed: function() {},
   methods: {
     //...mapActions([""]),
+<<<<<<< HEAD
     getScale(instance) {
       let container = instance.getContainer();
       let scale1;
@@ -225,6 +241,59 @@ export default {
         ...val,
         x: left,
         y: top
+=======
+    resetJsplumbChart() {
+      // document.getElementById("cavans").style = "matrix(1, 0, 0, 1, 0, 0)";
+      // this.setZoomJsplumbChart();
+    },
+    setZoomJsplumbChart() {
+      // 假设矩阵是：matrix(a,b,c,d,e,f);
+      // 如果只是平移translate，只关注最后两个数值就好：
+      // e是水平移动距离，f是垂直移动距离
+      // 如果只是缩放scale，只关注a和d两个数值就好：
+      // a是水平缩放倍数，d是垂直缩放倍数
+      // 如果是旋转rotate，假设旋转角度是θ：
+      // matrix(cosθ,sinθ,-sinθ,cosθ,0,0)
+      // 拉伸skew，用到了三角函数tanθ，只与b, c两个参数相关，书写如下：
+      // （注意y轴倾斜角度在前）
+      // matrix(1,tan(θy),tan(θx),1,0,0)
+
+      // and forward it it to panzoom.
+      // var instance = panzoom(document.getElementById("cavans"), {
+      //   zoomDoubleClickSpeed: 1,
+      //   smoothScroll: false
+      // }).zoomAbs(
+      //   300, // initial x position
+      //   500, // initial y position
+      //   0.1 // initial zoom
+      // );
+      //instance.style = "transform-origin: 500px 500px 0px";
+
+      let canvas = document.getElementById("cavans");
+
+      this.instanceZoom = panzoom(canvas, {
+        zoomDoubleClickSpeed: 1,
+        smoothScroll: false
+      });
+
+      let style = window.getComputedStyle(canvas);
+
+      var values = [];
+
+      this.instanceZoom.on("pan", function(e, dx, dy, dz) {
+        console.log("Fired when the `element` is being panned", e);
+        values = style.transform
+          .split("(")[1]
+          .split(")")[0]
+          .split(",");
+        console.log(values);
+        console.log("x", parseFloat(values[4]));
+        console.log("y", parseFloat(values[5]));
+        console.log("坐标", {
+          x: parseFloat(values[4]) * parseFloat(values[0]),
+          y: parseFloat(values[5]) * parseFloat(values[3])
+        });
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
       });
     },
     delAllselected(data) {
@@ -256,9 +325,70 @@ export default {
             delete item.isSelected;
           }
 
+<<<<<<< HEAD
           return item;
         }
+=======
+      this.instanceZoom.on("zoom", function(e, dx, dy, dz) {
+        console.log("Fired when `element` is zoomed", e);
+        values = style.transform
+          .split("(")[1]
+          .split(")")[0]
+          .split(",");
+        console.log(values);
+        console.log("水平缩放", parseFloat(values[0]));
+        console.log("垂直缩放", parseFloat(values[3]));
+        console.log("坐标", {
+          x: parseFloat(values[4]) * parseFloat(values[0]),
+          y: parseFloat(values[5]) * parseFloat(values[3])
+        });
       });
+
+      this.instanceZoom.on("panend", (e, dx, dy, dz) => {
+        console.log("Fired when pan ended", e, dx, dy, dz);
+        // values = style.transform
+        //   .split("(")[1]
+        //   .split(")")[0]
+        //   .split(",");
+        // console.log(values);
+        // console.log("x", parseFloat(values[4]));
+        // console.log("y", parseFloat(values[5]));
+        // console.log("坐标", {
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+        // this.modifyElementPosition({
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+      });
+
+      this.instanceZoom.on("zoom", (e, dx, dy, dz) => {
+        console.log("Fired when `element` is zoomed", e, dx, dy, dz);
+        // values = style.transform
+        //   .split("(")[1]
+        //   .split(")")[0]
+        //   .split(",");
+        // console.log(values);
+        // console.log("水平缩放", parseFloat(values[0]));
+        // console.log("垂直缩放", parseFloat(values[3]));
+        // console.log("坐标", {
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+        // this.modifyElementPosition({
+        //   x: parseFloat(values[4]) * parseFloat(values[0]),
+        //   y: parseFloat(values[5]) * parseFloat(values[3])
+        // });
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
+      });
+
+      this.instanceZoom.on("transform", function(e) {
+        // This event will be called along with events above.
+        console.log("Fired when any transformation has happened", e);
+      });
+
+      // canvas.style = "transform-origin: 500px 500px 0px";
     },
     resetJsplumbChart() {
       // document.getElementById("cavans").style = "matrix(1, 0, 0, 1, 0, 0)";
@@ -296,6 +426,12 @@ export default {
     completedConnect() {
       this.getLinksData();
     },
+<<<<<<< HEAD
+=======
+    handleDrop(data, event) {
+      this.$emit("handleDrop", { data: data, event: event });
+    },
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
     delConnections(val, fn) {
       //console.log(" delConnections(val, fn) {", val, fn);
       fn();
@@ -353,6 +489,7 @@ export default {
     mousewheelCavans(event) {
       console.log("mousewheelCavans", event);
     },
+<<<<<<< HEAD
     mousedownBody(event) {
       if (this.mouserOverConnect) {
         return;
@@ -500,6 +637,10 @@ export default {
 
         //if(outputConfigurations.length==)
       }
+=======
+    tab(event) {
+      console.log("tab", event);
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
     }
   }
 };
@@ -510,15 +651,22 @@ export default {
 .jsplumb-chart {
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
   position: relative;
   overflow: hidden;
   outline: none !important;
 
   #jsplumb-chart {
     outline: none !important;
+=======
+  position: absolute;
+
+  .cavans {
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
     height: 100%;
     width: 100%;
     position: relative;
+<<<<<<< HEAD
   }
 
   .jtk-surface {
@@ -532,6 +680,14 @@ export default {
     // // width: 50px;
     // position: relative;
     // cursor: -webkit-grab;
+=======
+    cursor: -webkit-grab;
+    // top: 0;
+    // left: 0;
+    // top: 500px;
+    // left: 500px;
+    //   background-image: url("../assets/img/designBg.png");
+>>>>>>> 178338fd2cd285143f57e209f360e3d037be7887
 
     // ////////////////////////node style begin///////////////////
     .designIconBig {
