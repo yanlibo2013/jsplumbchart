@@ -4,7 +4,10 @@
   "description": "jsplumbchart",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "dev": "vue serve src/view/chart.vue",
+    "build": "bili src/index.js",
+    "npx": "npx bili --bundle-node-modules"
   },
   "repository": {
     "type": "git",
