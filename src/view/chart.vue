@@ -1,17 +1,5 @@
 <template>
   <div class="chart" id="workplace">
-    <!-- <jsplumbchart
-      :data="{
-              stepData: this.steps,
-              links: this.links,
-              jsPlumb: this.jsPlumb
-            }"
-      @handleDrop="handleDrop"
-      @modifyChart="modifyChart"
-      @nodedblClick="nodedblClick"
-      ref="jsplumbchart"
-    ></jsplumbchart>-->
-
     <jsplumbchart
       :data="jsplumbchartOption"
       @modifyJsplumbchartOption="modifyJsplumbchartOption"
@@ -26,6 +14,7 @@
 
 <script>
 /* eslint-disable */
+import "../assets/fonts/iconfont.css"; // step icons
 import plumbGather from "jsplumb";
 import jsplumbchart from "../jsplumbchart/index";
 import { mapGetters, mapActions, mapState } from "vuex";
