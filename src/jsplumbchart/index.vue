@@ -17,7 +17,7 @@
 // import { mapGetters, mapActions, mapState } from "vuex";
 import getInstance from "./lib/getInstance";
 import _ from "lodash";
-import flowchartNode from "./node/flowchatNode/index";
+import flowchartNode from "./node/flowchatNode/index.vue";
 import panzoom from "./lib/pan";
 import {
   message,
