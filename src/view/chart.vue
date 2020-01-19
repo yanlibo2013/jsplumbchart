@@ -1,6 +1,6 @@
 <template>
-  <div class="chart">
-    <jsplumbchart
+  <div class="chart" id="workplace">
+    <!-- <jsplumbchart
       :data="{
               stepData: this.steps,
               links: this.links,
@@ -9,6 +9,15 @@
       @handleDrop="handleDrop"
       @modifyChart="modifyChart"
       @nodedblClick="nodedblClick"
+      ref="jsplumbchart"
+    ></jsplumbchart>-->
+
+    <jsplumbchart
+      :data="jsplumbchartOption"
+      @modifyJsplumbchartOption="modifyJsplumbchartOption"
+      @modifyChart="modifyChart"
+      @nodedblClick="nodedblClick"
+      @handleDrop="handleDrop"
       ref="jsplumbchart"
     ></jsplumbchart>
   </div>
@@ -45,7 +54,15 @@ export default {
       steps: [],
       links: [],
       flowData: [],
-      jsPlumb: plumbGather.jsPlumb
+      jsPlumb: plumbGather.jsPlumb,
+      jsplumbchartOption: {
+        steps: this.steps,
+        links: this.links,
+        container: "workplace",
+        nodeType: "flowchartnode",
+        jsPlumb: this.jsPlumb,
+        containerRect: ""
+      }
     };
   },
   computed: {
@@ -68,6 +85,10 @@ export default {
   destroyed: function() {},
   methods: {
     //...mapActions([""]),
+    modifyJsplumbchartOption() {},
+    modifyChart() {},
+    nodedblClick() {},
+    handleDrop() {},
     modifyChart(val) {
       this.steps = val.steps;
       this.links = val.links;

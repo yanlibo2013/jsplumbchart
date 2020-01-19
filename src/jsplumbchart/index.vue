@@ -1,86 +1,24 @@
 <template>
-  <!-- <div class="jsplumb-chart cavans" id="jsplumbchart"> -->
-  <drop class="jsplumb-chart" @drop="handleDrop">
-    <div class="jtk-surface" id="jsplumb-chart">
-      <!-- <div
-        v-for="(data, index) in stepData"
-        :key="index"
-        :id="data.id"
-        :class="setNodeStyle(data)"
-        :data-sign="data.name"
-        :data-type="data.type"
-        :style="
-          'left:' +
-            data.x +
-            'px;top:' +
-            data.y +
-            'px;position:absolute;margin:0'
-        "
-        @dblclick="dblClick(data)"
-        @mousedown="selectCurrentStep(data)"
-        @mousemove.ctrl="multSe3lectStep(data)"
-        @mouseup="mouseUpStep"
-      >-->
-      <div
-        v-for="(data, index) in stepData"
-        :key="index"
-        :id="data.id"
-        :class="setNodeStyle(data)"
-        :data-sign="data.name"
-        :data-type="data.type"
-        :style="'left:' + data.x + 'px;top:' + data.y + 'px;'"
-        @dblclick="dblClick(data)"
-        @mousedown="selectCurrentStep(data)"
-        @mousemove.ctrl="multSe3lectStep(data)"
-        @mouseup="mouseUpStep"
-      >
-        <i class="icon iconfont icon-ir-designIconBg designIconBg"></i>
-        <i
-          id="changeSte"
-          :class="
-            nodeIcon(data.type) == 'iconTrue'
-              ? 'icon iconfont icon-ir-d-' + data.type
-              : 'icon iconfont icon-ir-d-default'
-          "
-        ></i>
-        <h4 :title="data.name">{{ data.name }}</h4>
-        <h5>ID:{{ data.id }}</h5>
-        <em
-          id="copeDes"
-          class="icon iconfont icon-ir-copy"
-          title="复制"
-          @mousedown="deleCopyStepmouseDown"
-          @click.stop="copyNode(data)"
-        ></em>
-        <em
-          id="removeDes"
-          class="fa fa-trash-o"
-          title="删除"
-          @click.stop="delNode(data.id)"
-          @mousedown="deleCopyStepmouseDown"
-        ></em>
-
-        <!-- line split -->
-        <!-- <div class="line-split" v-show="data.type=='multioutput'" :style="setLineSplit(data)"></div> -->
-
-        <!-- selected node -->
-
-        <!-- <div v-show="data.isSelected" class="resize top"></div>
-        <div v-show="data.isSelected" class="resize left"></div>
-        <div v-show="data.isSelected" class="resize bottom"></div>
-        <div v-show="data.isSelected" class="resize right"></div>-->
-      </div>
+  <div class="jsplumb-chart">
+    <div class="cavansClass" id="cavans">
+      <flowchartNode
+        :data="{stepData:stepData}"
+        @dblClick="dblClick"
+        @copyNode="copyNode"
+        @delNode="delNode"
+        v-show="nodeType=='flowchartnode'"
+      ></flowchartNode>
     </div>
-  </drop>
-  <!-- </div> -->
+  </div>
 </template>
 
 <script>
 /* eslint-disable */
 // import { mapGetters, mapActions, mapState } from "vuex";
-import getInstance from "@/utils/getInstance";
-import panzoom from "@/utils/panZoom/moveAndZoom";
+import getInstance from "./lib/getInstance";
 import _ from "lodash";
+import flowchartNode from "./node/flowchatNode/index";
+import panzoom from "./lib/pan";
 import {
   message,
   filterLinkData,
@@ -92,22 +30,22 @@ import {
   addEndpointToNode,
   getNodeType,
   setClass,
-  connect,
-  getOutputConfigurations
-} from "@/utils/flowchart";
-// import panzoom from "panzoom";
-// import "@svgdotjs/svg.panzoom.js";
+  connect
+} from "./lib/flowchart";
+
 export default {
   watch: {
     data(val) {
-      this.stepData = this.data.stepData;
+      this.stepData = this.data.steps;
       this.links = this.data.links;
+      this.nodeType = this.data.nodeType;
+      this.containerRect = val.containerRect;
     },
     stepData(val) {
-      this.$emit("modifyChart", { steps: val, links: this.links });
+      this.$emit("modifyChart", { stepData: val, links: this.links });
     },
     links(val) {
-      this.$emit("modifyChart", { steps: this.stepData, links: val });
+      this.$emit("modifyChart", { stepData: this.stepData, links: val });
     }
   },
   props: {
@@ -116,18 +54,18 @@ export default {
       default: false
     }
   },
-  components: {},
+  components: {
+    flowchartNode
+    // cepNode
+  },
   data: function() {
     return {
-      panzoomInstance: "",
-      // panzoomInstance: panzoom.init(this.jsplumbInstance),
       jsplumbInstance: getInstance({
         // container: "workplace",
-        container: "jsplumb-chart",
+        container: this.data.container,
         delConnections: this.delConnections,
         completedConnect: this.completedConnect,
-        jsPlumb: this.data.jsPlumb,
-        modifyOverConnectStatus: this.modifyOverConnectStatus
+        jsPlumb: this.data.jsPlumb
       }),
       stepData: [],
       links: [],
@@ -135,42 +73,46 @@ export default {
       nodeIcon: nodeIcon,
       setClass: setClass,
       instanceZoom: "",
-      dragging: false,
-      //鼠标按下时的鼠标所在的X，Y坐标
-      mouseDownX: "",
-      mouseDownY: "",
-      //初始位置的X，Y 坐标
-      initX: "",
-      initY: "",
-      distanceX: 0,
-      distancey: 0,
-      selectedStepId: "",
-      mulSelect: false,
-      isDeleCopyStep: false,
-      mouserOverConnect: false,
-      isPanZoomInit: true
+      nodeType: "",
+      isPanZoomInit: true,
+      cssText: "",
+      containerRect: ""
     };
   },
   computed: {
     //...mapState([""])
   },
-  mounted() {
-    // let canvas = document.getElementById("cavans");
-    // this.initX = canvas.offsetLeft;
-    // this.initY = canvas.offsetTop;
-    // console.log(this.initX,this.initY);
-    this.$nextTick(() => {
-      //console.log(" this.$nextTick(() => { mounted");
-      //this.setZoomJsplumbChart("cavans");
-      this.initEvent();
-    });
-  },
+  mounted() {},
   beforeCreate() {},
   created() {},
   beforeMount() {},
   beforeUpdate() {},
-  updated(p) {
-    this.$nextTick(t => {
+  updated() {
+    this.$nextTick(() => {
+      if (this.containerRect) {
+        console.log('if (this.containerRect) {');
+        let lastStep = _.last(this.stepData);
+        let result = this.modifyNodePositon({ x: lastStep.x, y: lastStep.y });
+        this.stepData = _.map(_.cloneDeep(this.stepData), item => {
+          if (lastStep.id == item.id) {
+            return {
+              ...item,
+              x: result.x,
+              y: result.y
+            };
+          } else {
+            return item;
+          }
+        });
+
+        this.$emit("modifyJsplumbchartOption", {
+          ...this.data,
+          steps: this.stepData,
+          links: this.links,
+          containerRect: ""
+        });
+      }
+
       this.drawJsplumbChart(
         {
           jsplumbInstance: this.jsplumbInstance,
@@ -180,11 +122,17 @@ export default {
         },
         () => {
           this.getLinksData();
-          // if (this.isPanZoomInit) {
-          //   panzoom.init(this.jsplumbInstance);
-          //   this.isPanZoomInit = false;
-          // }
-          //
+          if (this.isPanZoomInit) {
+            panzoom.init(this.jsplumbInstance, false);
+            this.isPanZoomInit = false;
+
+            this.canvasMoveTo(this.data.matrix, transformOrigin => {
+              this.jsplumbInstance.pan.moveTo(
+                transformOrigin.x,
+                transformOrigin.y
+              );
+            });
+          }
         }
       );
     });
@@ -197,74 +145,58 @@ export default {
       let container = instance.getContainer();
       let scale1;
       if (instance.pan) {
-        console.log("if (this.jsplumbInstance.pan) {");
         const { scale } = instance.pan.getTransform();
         scale1 = scale;
       } else {
-        console.log(" } else {");
         const matrix = window.getComputedStyle(container).transform;
         scale1 = matrix.split(", ")[3] * 1;
       }
       instance.setZoom(scale1);
       return scale1;
     },
-    resume() {
-      return panzoom.init(this.jsplumbInstance).resume;
-    },
-    handleDrop(val, nativeEvent) {
-      const containerRect = this.jsplumbInstance
-        .getContainer()
-        .getBoundingClientRect();
-      let scale = this.getScale(this.jsplumbInstance);
 
-      let left = (nativeEvent.pageX - containerRect.left) / scale;
-      let top = (nativeEvent.pageY - containerRect.top) / scale;
+    modifyNodePositon(val) {
+      let jsplumbInstance = this.jsplumbInstance;
+      const containerRect = this.containerRect;
+      let scale = this.getScale(this.jsplumbInstance);
+      let left = (val.x - containerRect.left) / scale;
+      let top = (val.y - containerRect.top) / scale;
       left -= 20;
       top -= 25;
-      this.$emit("handleDrop", {
-        ...val,
+      return {
         x: left,
         y: top
+      };
+    },
+    canvasMoveTo(data, fn) {
+      let matrix = data
+        .split("(")[1]
+        .split(")")[0]
+        .split(",");
+      let result = {
+        x: parseInt(matrix[4]),
+        y: parseInt(matrix[5])
+      };
+
+      fn(result);
+    },
+    setCavansMatrix(data) {
+      let source = _.filter(data, val => {
+        return val.type == "source";
       });
+
+      return source[0].stepSettings && source[0].stepSettings.matrix;
     },
-    delAllselected(data) {
-      this.stepData = _.filter(data, item => {
-        return !item.isSelected;
-      });
-    },
-    deleCopyStepmouseDown() {
-      this.isDeleCopyStep = true;
-    },
-    mouseUpStep() {
-      this.mulSelect = false;
-    },
-    multSe3lectStep(val) {
-      this.mulSelect = true;
-    },
-    selectCurrentStep(val) {
-      if (this.isDeleCopyStep) {
-        return;
+    setNodeTemplate(val) {
+      switch (val) {
+        case "flowchartnode":
+          return flowchartNode;
+        case "cepNode":
+          return cepNode;
+        default:
+          "";
       }
-      this.stepData = _.map(this.stepData, item => {
-        if (val.id == item.id) {
-          return {
-            ...item,
-            isSelected: true
-          };
-        } else {
-          if (!this.mulSelect) {
-            delete item.isSelected;
-          }
-
-          return item;
-        }
-      });
     },
-    resetJsplumbChart() {
-      // document.getElementById("cavans").style = "matrix(1, 0, 0, 1, 0, 0)";
-      //this.setZoomJsplumbChart("cavans");
-    },
-
     drawJsplumbChart(data, connectCallback) {
       addEndpointToNode(
         data.jsplumbInstance,
@@ -285,46 +217,19 @@ export default {
         },
         _
       );
-
-      connect(
-        data.jsplumbInstance,
-        data.self,
-        data.links,
-        connectCallback
-      );
+      connect(data.jsplumbInstance, data.self, data.links, connectCallback);
     },
     completedConnect() {
       this.getLinksData();
     },
     delConnections(val, fn) {
-      //console.log(" delConnections(val, fn) {", val, fn);
       fn();
       this.getLinksData();
-      // message(
-      //   "确定删除当前连线",
-      //   () => {
-      //     fn();
-      //     this.getLinksData();
-      //   },
-      //   this
-      // );
     },
     delNode(val) {
       this.stepData = _.filter(_.cloneDeep(this.stepData), item => {
         return item.id != val;
       });
-      this.isDeleCopyStep = false;
-
-      console.log(" delNode(val) {", this.stepData);
-      // message(
-      //   "确定删除当前节点",
-      //   () => {
-      //     this.stepData = _.filter(_.cloneDeep(this.stepData), item => {
-      //       return item.id != val;
-      //     });
-      //   },
-      //   this
-      // );
     },
     dblClick(val) {
       this.$emit("nodedblClick", val);
@@ -343,162 +248,59 @@ export default {
         }),
         _
       );
-      //console.log("  getLinksData() {", this.links);
     },
     reset() {
       this.stepData = [];
       this.links = [];
       this.jsplumbInstance.deleteEveryEndpoint("workplace");
     },
-    mousewheelCavans(event) {
-      console.log("mousewheelCavans", event);
-    },
-    mousedownBody(event) {
-      if (this.mouserOverConnect) {
-        return;
-      }
 
-      this.stepData = _.map(this.stepData, item => {
-        delete item.isSelected;
-        return item;
-      });
-    },
-    mouseup(event) {
-      // console.log("mouseup(event) {");
-    },
-    mousemove(event) {
-      console.log("  mousemove(event) {");
-    },
-    addClass(ele, cls) {
-      if (!this.hasClass(ele, cls)) {
-        ele.className = ele.className == "" ? cls : ele.className + " " + cls;
-      }
-    },
-    removeClass(elem, cls) {
-      if (this.hasClass(elem, cls)) {
-        var newClass = " " + elem.className.replace(/[\t\r\n]/g, "") + " ";
-        while (newClass.indexOf(" " + cls + " ") >= 0) {
-          newClass = newClass.replace(" " + cls + " ", " ");
-        }
-        elem.className = newClass.replace(/^\s+|\s+$/g, "");
-      }
-    },
-    hasClass(elem, cls) {
-      cls = cls || "";
-      if (cls.replace(/\s/g, "").length == 0) return false; //当cls没有参数时，返回false
-      return new RegExp(" " + cls + " ").test(" " + elem.className + " ");
-    },
-
-    copyNode(item) {
-      let val = _.cloneDeep(item);
-      delete val.isSelected;
+    copyNode(val) {
       let node = {
         ...val,
         x: val.x + 50,
         y: val.y + 50,
-        id: "rtc_" + val.type + "_" + (this.stepData.length + 1)
+        id: val.type + "_" + (this.stepData.length + 1) + "_copy"
+        // id: "rtc_" + val.type + "_" + (this.stepData.length + 1)
       };
       this.$emit("handleDrop", node);
-      this.isDeleCopyStep = false;
-      //this.mousedown();
-    },
-    setNodeStyle(val) {
-      let stepStyle = setClass(nodeClass(val.type));
-      // let output = val.outputConfigurations
-      //   ? getOutputConfigurations(val.outputConfigurations, _)
-      //   : [];
-      // if (val.type == "multioutput") {
-      //   console.log('if (val == "multioutput") {');
-      //   return " circle-right " + stepStyle;
-      // }
-
-      // if (output.length > 5) {
-      //   return " stepsItem trapezoid ";
-      // }
-      return "designIconBig stepsItem " + stepStyle;
-    },
-
-    modifyOverConnectStatus(val) {
-      this.mouserOverConnect = val;
-    },
-    initEvent() {
-      document.onkeydown = e => {
-        if (e.keyCode == 46) {
-          this.delAllselected(this.stepData);
-        }
-      };
-
-      document.onmousedown = e => {
-        this.mousedownBody(e);
-      };
-    },
-    dragAllEelment(x1, y1, elem) {
-      var l = document.getElementById(elem).offsetLeft;
-      var t = document.getElementById(elem).offsetTop;
-
-      console.log("document.onmousemove = ev => {", l, t);
-      //event的兼容性
-      var ev = ev || event;
-      //获取鼠标移动时的坐标
-      var x2 = ev.clientX;
-      var y2 = ev.clientY;
-      //计算出鼠标的移动距离
-      var x = x2 - x1;
-      var y = y2 - y1;
-      //移动的数值与元素的left，top相加，得出元素的移动的距离
-      var lt = y + t;
-      var ls = x + l;
-      //更改元素的left，top值
-      // divs.style.top = lt + "px";
-      // divs.style.left = ls + "px";
-
-      // this.stepData = _.map(this.stepData, item => {
-      //   if (item.id == elem) {
-      //     return {
-      //       ...item,
-      //       x: ls,
-      //       y: lt
-      //     };
-      //   } else {
-      //     return item;
-      //   }
-      // });
     },
     setLineSplit(step) {
       //console.log("setLineSplit(step){", step); //outputConfigurations
 
-      if (step.type == "multioutput") {
+      if (step.type == "split") {
         let outputConfigurations = _.toArray(step.outputConfigurations);
-        // console.log("step.outputConfigurations", step.outputConfigurations);
-        // console.log("outputConfigurations", outputConfigurations);
 
         switch (outputConfigurations.length) {
+          case 21:
           case 20:
+            return "height: 280px; top: -100px;";
           case 19:
           case 18:
           case 17:
+            return "height: 270px; top: -95px;";
+
           case 16:
           case 15:
-            return "height: 290px; top: -110px;";
+            return "height: 270px; top: -90px;";
           case 14:
           case 13:
           case 12:
+            return "height: 190px; top: -50px;";
           case 11:
           case 10:
-            return "height: 210px; top: -70px;";
+            return "height: 155px; top: -43px;";
           case 9:
           case 8:
             // case 7:
-            return "height: 140px; top: -35px;";
+            return "height: 120px; top: -35px;";
           case 7:
           case 6:
           case 5:
             return "height: 120px; top: -25px;";
           default:
-            "";
+            return "height: 70px; top: 0px;";
         }
-
-        //if(outputConfigurations.length==)
       }
     }
   }
@@ -506,267 +308,16 @@ export default {
 </script>
 
 <style lang="scss">
-// @import "./tookit.css";
 .jsplumb-chart {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
-  position: relative;
-  overflow: hidden;
-  outline: none !important;
+  position: absolute;
 
-  #jsplumb-chart {
-    outline: none !important;
+  .cavansClass {
     height: 100%;
     width: 100%;
     position: relative;
-  }
-
-  .jtk-surface {
-    // z-index: 0;
-    // height: 100%;
-    // width: 100%;
-    // // background: #4586f3;
-    // // top: 20px;
-    // // left: 20px;
-    // // height: 50px;
-    // // width: 50px;
-    // position: relative;
-    // cursor: -webkit-grab;
-
-    // ////////////////////////node style begin///////////////////
-    .designIconBig {
-      height: 70px;
-      width: 150px;
-      margin: 0 auto;
-      // padding: 12px;
-      // box-sizing: border-box;
-      box-shadow: 0 10px 18px -9px rgba(0, 0, 0, 0.5);
-      background: #ffffff;
-      text-align: center;
-      position: absolute;
-      margin-right: 15px;
-      margin-bottom: 20px;
-      // cursor: move;
-      float: left;
-    }
-
-    .designIconBig i,
-    .trapezoid i {
-      float: none !important;
-      position: absolute;
-      left: 5px;
-      top: 8px;
-      width: 30px !important;
-      height: 30px !important;
-      line-height: 30px !important;
-      font-size: 30px !important;
-    }
-
-    .designIconBig h4,
-    .trapezoid h4 {
-      position: absolute;
-      top: 5px;
-      left: 38px;
-      margin: 0px;
-      padding: 0px;
-      width: 110px;
-      text-align: left;
-      font-size: 14px;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .designIconBig h5,
-    .trapezoid h5 {
-      position: absolute;
-      top: 25px;
-      left: 38px;
-      margin: 0px;
-      padding: 0px;
-      width: 110px;
-      text-align: left;
-      font-size: 12px;
-      font-weight: normal;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .designIconBig #removeDes {
-      position: absolute;
-      top: 46px;
-      right: 15px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-
-    .designIconBig #copeDes {
-      position: absolute;
-      top: 45px;
-      right: 35px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-
-    .trapezoid #removeDes {
-      position: absolute;
-      top: 46px;
-      right: -138px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-
-    .trapezoid #copeDes {
-      position: absolute;
-      top: 45px;
-      right: -118px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-    .designIconBig #pitchOnDes,
-    .trapezoid #pitchOnDes {
-      position: absolute;
-      top: 47px;
-      right: 60px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-    .desingIconBig #markDes,
-    .trapezoid #markDes {
-      position: absolute;
-      top: 45px;
-      right: 20px;
-      font-size: 14px;
-      color: #b9c0d8;
-      margin: 0px;
-      padding: 0px;
-    }
-
-    .t1Style {
-      border: 2px solid #48c038;
-      color: #48c038;
-      border-radius: 2px;
-    }
-    .t2Style {
-      border: 2px solid #4586f3;
-      color: #4586f3;
-      border-radius: 2px;
-    }
-    .t3Style {
-      border: 2px solid #8367df;
-      color: #8367df;
-      border-radius: 2px;
-    }
-
-    .redStyle {
-      border: 2px solid red;
-    }
-    .designIconBg {
-      position: absolute;
-      color: #ffffff !important;
-    }
-
-    .designIconBig #removeDes:hover,
-    .trapezoid #removeDes:hover {
-      color: #ff4e4e;
-    }
-
-    .designIconBig #copeDes:hover,
-    .trapezoid #copeDes:hover {
-      color: #ff4e4e;
-    }
-
-    .designIconBig #pitchOnDes:hover {
-      color: #ff4e4e;
-    }
-
-    // ////////////////////////node style end///////////////////
-
-    .bigrounded {
-      border-radius: 0 2rem 2rem 0;
-      width: 175px;
-    }
-
-    // .endpointSourceLabelMult {
-    //   transform-origin: bottom left !important;
-    //   transform: rotate(-45deg) !important;
-    // }
-
-    .trapezoid {
-      color: #4586f3;
-      border-right: 150px solid #ffffff;
-      border-top: 50px solid transparent;
-      border-bottom: 50px solid transparent;
-      height: 70px;
-      width: 0px;
-
-      /*边框颜色：上 右 下 左 （从上边框开始 顺时针方向）*/
-      // border-color: transparent transparent #402820 transparent;
-      /*为了兼容IE6，所有设置为透明（transparent）的边，需要设置为dashed；有颜色的边设置为solid*/
-      // border-style: dashed dashed solid dashed;
-    }
-
-    .resize {
-      width: 8px;
-      height: 8px;
-      background-color: #ddd;
-      border: 1px solid #000;
-      position: absolute;
-      &.left {
-        top: 50%;
-        left: -4px;
-        cursor: ew-resize;
-      }
-      &.right {
-        top: 50%;
-        right: -4px;
-        cursor: ew-resize;
-      }
-      &.top {
-        top: -4px;
-        left: 50%;
-        margin-left: -4px;
-        cursor: ns-resize;
-      }
-      &.bottom {
-        bottom: -4px;
-        left: 50%;
-        margin-left: -4px;
-        cursor: ns-resize;
-      }
-    }
-
-    .circle-right {
-      width: 100px;
-      height: 0px;
-      border: 0 solid transparent;
-      border-bottom: 100px solid #669;
-      border-top: 100px solid #669;
-      -moz-border-radius: 0 100px 100px 0;
-      -webkit-border-radius: 0 100px 100px 0;
-      border-radius: 0 100px 100px 0;
-    }
-  }
-
-  .line-split {
-    position: absolute;
-    // height: 330px;
-    width: 2px;
-    background: #4586f3;
-    right: -2px;
-    // top: -120px;
   }
 }
 </style>
