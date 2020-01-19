@@ -3,7 +3,7 @@ import { uglify } from "rollup-plugin-uglify";
 module.exports = {
   banner: true,
   output: {
-    dir: "lib"
+    dir: "dist"
   },
   plugins: {
     vue: {
