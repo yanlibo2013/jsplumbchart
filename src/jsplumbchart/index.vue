@@ -51,7 +51,7 @@ export default {
   props: {
     data: {
       type: Object,
-      default: false
+      default: {}
     }
   },
   components: {
@@ -90,7 +90,6 @@ export default {
   updated() {
     this.$nextTick(() => {
       if (this.containerRect) {
-        console.log('if (this.containerRect) {');
         let lastStep = _.last(this.stepData);
         let result = this.modifyNodePositon({ x: lastStep.x, y: lastStep.y });
         this.stepData = _.map(_.cloneDeep(this.stepData), item => {
@@ -126,6 +125,10 @@ export default {
             panzoom.init(this.jsplumbInstance, false);
             this.isPanZoomInit = false;
 
+            if (!this.data.matrix) {
+              return;
+            }
+
             this.canvasMoveTo(this.data.matrix, transformOrigin => {
               this.jsplumbInstance.pan.moveTo(
                 transformOrigin.x,
@@ -149,7 +152,8 @@ export default {
         scale1 = scale;
       } else {
         const matrix = window.getComputedStyle(container).transform;
-        scale1 = matrix.split(", ")[3] * 1;
+        console.log("matrix", matrix);
+        scale1 = matrix && matrix.split(", ")[3] * 1;
       }
       instance.setZoom(scale1);
       return scale1;

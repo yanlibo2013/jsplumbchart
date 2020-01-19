@@ -69,15 +69,25 @@ export default {
     //...mapState([""])
   },
   mounted() {
-    // let res = flowData;
-
-    console.log("flowData", flowData);
-
     this.steps = flowData.steps;
     this.links = flowData.links;
+    this.jsplumbchartOption = {
+      ...this.jsplumbchartOption,
+      steps: this.steps,
+      links: this.links
+    };
   },
   beforeCreate() {},
-  created() {},
+  created() {
+    this.jsplumbchartOption = {
+      steps: this.steps,
+      links: this.links,
+      container: "workplace",
+      nodeType: "flowchartnode",
+      jsPlumb: this.jsPlumb,
+      containerRect: ""
+    };
+  },
   beforeMount() {},
   beforeUpdate() {},
   updated() {},
